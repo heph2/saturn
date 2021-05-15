@@ -6,47 +6,46 @@ import (
 	"os"
 )
 
-func flagsFetch() *string {
-	inputPtr := flag.String("fetch", "", "User input.")
-
-	return inputPtr
-}
-
-func flagsDown() *int {
-	idPtr := flag.Int("download", -1, "Episode to download.")
-
-	return idPtr
-}
-
-func main() {
-
-	inputPtr := flagsFetch()
-	idPtr := flagsDown()
-
-	flag.Parse()
-
+func runFetch(input *string) (index map[int]string) {
 	// Print on stdout the list of the episodes available
 	// Then match the episode to an index
-	episodes := FetchAnime(*inputPtr)
+	episodes := FetchAnime(*input)
 
-	index := make(map[int]string)
+	index = make(map[int]string)
 	for i, ep := range episodes {
 		fmt.Printf("ID:%d \t %s\n", i, ep)
 		index[i] = ep
 	}
+	return index
+}
 
+func runDown(input *int, id map[int]string) bool {
+	if *input == -1 {
+		return false
+	}
 	var epDownload []string
-	epDownload = append(epDownload, index[*idPtr])
 
-	if *idPtr == -1 {
+	epDownload = append(epDownload, id[*input])
+
+	Pool(epDownload)
+
+	return true
+}
+
+func main() {
+	inputPtr := flag.String("fetch", "", "User input.")
+	idPtr := flag.Int("download", -1, "Episode to download.")
+	flag.Parse()
+
+	if *inputPtr == "" {
 		flag.PrintDefaults()
 		os.Exit(1)
 	}
 
-	// Check if an episodes to download is provided
-	//	if ok {
-	// Start goroutines pool
-	fmt.Println(epDownload)
-	Pool(epDownload)
-	//	}
+	id := runFetch(inputPtr)
+
+	ok := runDown(idPtr, id)
+	if ok {
+		fmt.Print("Download Started")
+	}
 }

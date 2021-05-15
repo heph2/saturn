@@ -1,6 +1,9 @@
 package main
 
 import (
+	"log"
+	"net/http"
+
 	"github.com/PuerkitoBio/goquery"
 )
 
@@ -10,8 +13,18 @@ const baseURL = "https://www.animesaturn.it"
 // from an anime searched
 func FetchAnime(input string) (Episodes []string) {
 	search := baseURL + "/anime/" + input
-	doc, _ := goquery.NewDocument(search)
+	req, _ := http.NewRequest("GET", search, nil)
 
+	// Add Referer to bypass cloudflare
+	req.Header.Set("Referer", search)
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Println(err)
+	}
+	defer resp.Body.Close()
+
+	doc, _ := goquery.NewDocumentFromReader(resp.Body)
 	doc.Find("a.btn.btn-dark.mb-1").Each(func(i int, s *goquery.Selection) {
 		var episode string
 		link, _ := s.Attr("href")
