@@ -18,7 +18,6 @@ func Pool(epToDownload []string) {
 	// a message to "done" channel
 	for i := 0; i < workers; i++ {
 		go func() {
-			//			Download(in)
 			Download(in)
 			done <- struct{}{}
 		}()
