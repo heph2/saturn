@@ -15,9 +15,11 @@ You need a Go version with modules support
 
 ### Installing
 
-Just run
+_Just run_
 
-go get git.mrkeebs.eu/saturn
+```code
+go get git.sr.ht/~heph/saturn
+```
 
 
 ### Basic Usage
