@@ -42,10 +42,12 @@ saturn [-fetch] <anime> -down <ID,ID>
   Use a dash-separated input
 saturn [-fetch] <anime> -down <ID-ID>
 
-Example of Usage:
+_Example of Usage:_
 $ saturn -search monster
 
 This return:
+
+```code
 Monster
 Monster-Strike
 Monster-Strike-2
@@ -58,11 +60,13 @@ Monster-Musume-no-Iru-Nichijou
 Monster-Hunter-Stories-Ride-On
 Digimon-Universe-Appli-Monsters
 Monster-Musume-no-Iru-Nichijou-OVA
+```
 
 Now i can use one of this output for fetching the episodes ( i suggest to copy-paste )
 $ saturn -fetch Monster-Strike
 
 This return:
+```code
 ID:0 	 https://www.animesaturn.it/ep/Monster-Strike-ep-1
 ID:1 	 https://www.animesaturn.it/ep/Monster-Strike-ep-2
 ID:2 	 https://www.animesaturn.it/ep/Monster-Strike-ep-3
@@ -72,6 +76,7 @@ ID:5 	 https://www.animesaturn.it/ep/Monster-Strike-ep-6
 ID:6 	 https://www.animesaturn.it/ep/Monster-Strike-ep-7
 ID:7 	 https://www.animesaturn.it/ep/Monster-Strike-ep-8
 ....
+```
 
 Now let's say that i want to download from episode 2 to 5
 $ saturn -fetch Monster-Strike -down 1-5
