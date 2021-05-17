@@ -23,14 +23,13 @@ go get git.mrkeebs.eu/saturn
 ### Basic Usage
 
 - For search for the availables Anime run
-  This return the list
+
 ```code
 saturn [-search] <anime>
 ```
 
-- For fetching the available Episodes run
-  using the exact string returned by saturn -search
-  This return a list of the available episodes with an ID associated
+- For fetching the available Episodes, using the exact string returned by saturn -search
+
 ```code
 saturn [-fetch] <anime>
 ```
