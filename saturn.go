@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+// This function search all the available anime
+// that can be fetched. Then print them to stdout
 func runSearch(input *string) {
 	available := SearchAnime(*input)
 
@@ -16,7 +18,7 @@ func runSearch(input *string) {
 	}
 }
 
-// Print on stdout the list of the episodes available
+// This function print on stdout the list of the episodes available
 // Then match the episode to an index
 func runFetch(input *string) (index map[int]string) {
 	episodes := FetchAnime(*input)
@@ -29,6 +31,8 @@ func runFetch(input *string) (index map[int]string) {
 	return index
 }
 
+// This function get a string as input and return a slice of ints
+// of all the episodes to download.
 func runDown(str string) []int {
 	var ids []int
 	var s []string
@@ -69,20 +73,26 @@ func runDown(str string) []int {
 }
 
 func main() {
+	// FLAGS //
 	searchPtr := flag.String("search", "", "Search Anime")
 	inputPtr := flag.String("fetch", "", "Fetch the available episodes for the anime selected.")
 	idPtr := flag.String("down", "", "Episodes available")
 	flag.Parse()
 
+	// if -search is passed
 	if *searchPtr != "" {
 		runSearch(searchPtr)
 	}
 
+	// if -fetch is passed
 	var index map[int]string
 	if *inputPtr != "" {
 		index = runFetch(inputPtr)
 	}
 
+	// if -down is passed range over the
+	// numbers of episodes selected, then
+	// append the string(url) associated to the id
 	if *idPtr != "" {
 		ids := runDown(*idPtr)
 		fmt.Println(ids)
@@ -90,6 +100,7 @@ func main() {
 		for _, id := range ids {
 			episodes = append(episodes, index[id])
 		}
+		// Call the pool of goroutines with the selected episodes
 		Pool(episodes)
 	}
 }

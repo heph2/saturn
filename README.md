@@ -1,6 +1,7 @@
-# Saturn-dl
+# Saturn
 
-An animesaturn.it scraper and downloader
+An animesaturn.it scraper and downloader.
+Actually can download up to 10 episodes concurrently.
 
 ## Getting Started
 
@@ -10,30 +11,72 @@ puproses.
 
 ### Prerequisities
 
-You need a Go version with modules support, so Go 1.14 at least
+You need a Go version with modules support
 
 ### Installing
 
 Just run
 
-``` shell
-
 go get git.mrkeebs.eu/saturn
 
-```
 
 ### Basic Usage
 
-``` shell
+- For search for the availables Anime run
+  This return the list
+saturn [-search] <anime>
 
-saturn -f [AnimeToSearch] // Get a list of available episodes with
-                          // an index associated
-                          
-## For Downloading an episode
+- For fetching the available Episodes run
+  using the exact string returned by saturn -search
+  This return a list of the available episodes with an ID associated
+saturn [-fetch] <anime>
 
-saturn -d [AnimeToSearch] [id] // This will download the selected ep
+- For downloading a single episode using the ID associated returned by -fetch
+saturn [-fetch] <anime> -down <ID>
 
-```
+- For downloading differents episodes (eg: episode with ID 1 and episode with ID 3)
+  Use a comma-separated input
+saturn [-fetch] <anime> -down <ID,ID>
+
+- For downloadind with a range of episodes (eg: from episode with ID 1 to 6)
+  Use a dash-separated input
+saturn [-fetch] <anime> -down <ID-ID>
+
+Example of Usage:
+$ saturn -search monster
+
+This return:
+Monster
+Monster-Strike
+Monster-Strike-2
+Monster-Strike-3
+Hatsukoi-Monster
+Monster-Girl-Doctor
+Monster-Strike-2018
+Yu-Gi-Oh-Duel-Monsters-ITA
+Monster-Musume-no-Iru-Nichijou
+Monster-Hunter-Stories-Ride-On
+Digimon-Universe-Appli-Monsters
+Monster-Musume-no-Iru-Nichijou-OVA
+
+Now i can use one of this output for fetching the episodes ( i suggest to copy-paste )
+$ saturn -fetch Monster-Strike
+
+This return:
+ID:0 	 https://www.animesaturn.it/ep/Monster-Strike-ep-1
+ID:1 	 https://www.animesaturn.it/ep/Monster-Strike-ep-2
+ID:2 	 https://www.animesaturn.it/ep/Monster-Strike-ep-3
+ID:3 	 https://www.animesaturn.it/ep/Monster-Strike-ep-4
+ID:4 	 https://www.animesaturn.it/ep/Monster-Strike-ep-5
+ID:5 	 https://www.animesaturn.it/ep/Monster-Strike-ep-6
+ID:6 	 https://www.animesaturn.it/ep/Monster-Strike-ep-7
+ID:7 	 https://www.animesaturn.it/ep/Monster-Strike-ep-8
+....
+
+Now let's say that i want to download from episode 2 to 5
+$ saturn -fetch Monster-Strike -down 1-5
+
+This will concurrently download the episodes ranging from 1 to 5.
 
 
 ## Built With
@@ -42,4 +85,4 @@ saturn -d [AnimeToSearch] [id] // This will download the selected ep
 
 ## License
 
-This project is licensed under the GPL3 Livence - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the GPL3 License - see the [LICENSE](LICENSE) file for details
