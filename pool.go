@@ -1,3 +1,12 @@
+/*
+   This file use a const of workers ( i.e. goroutines )
+   for concurrently download the episodes.
+   Create two channels, scrape the episode URL (with FetchEpisodes),
+   and pass to the goroutines the Anime struct, which contains the
+   name and the URL of the mp4.
+   Then the goroutines download the file and send a signal when end.
+*/
+
 package main
 
 import (

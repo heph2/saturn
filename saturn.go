@@ -1,3 +1,9 @@
+/*
+   This file is actually a mess.. It takes the flags(arguments)
+   from the user and call the corrispondent function. IDK if
+   it's the right way to procede..
+*/
+
 package main
 
 import (

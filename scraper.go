@@ -1,3 +1,7 @@
+/*
+   This file use goquery for scraping animesaturn.it
+*/
+
 package main
 
 import (

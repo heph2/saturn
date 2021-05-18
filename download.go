@@ -89,6 +89,8 @@ func Download(in <-chan Anime) {
 			}
 		}()
 
+		// Finally write the content of src ( wrap of res.Body ) into
+		// the file we create
 		_, err = io.Copy(out, src)
 		if err != nil {
 			log.Println(err)

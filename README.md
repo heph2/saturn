@@ -18,7 +18,10 @@ You need a Go version with modules support
 _Just run_
 
 
-    go get git.sr.ht/~heph/saturn
+    git clone https://git.mrkeebs.eu/saturn
+    cd saturn
+    make
+    sudo make install
 
 
 
