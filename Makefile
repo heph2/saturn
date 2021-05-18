@@ -6,7 +6,7 @@ DESTDIR =
 all: saturn
 
 saturn:
-				go build -o saturn
+				go build
 
 clean:
 				rm -f saturn
