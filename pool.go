@@ -17,7 +17,7 @@ const workers = 10 // Numbers of goroutines
 
 // Spawn n goroutines that concurrently download the files
 // streamed to the channel "in"
-func Pool(epToDownload []string) {
+func Pool(epToDownload []string, anime *string) {
 
 	in := make(chan Anime)
 	done := make(chan struct{})
@@ -35,7 +35,7 @@ func Pool(epToDownload []string) {
 
 	// Fetch the episode selected and stream the struct
 	for _, ep := range epToDownload {
-		FetchEpisodes(ep, in)
+		FetchEpisodes(ep, in, *anime)
 	}
 	// Close the channel when finish the stream
 	close(in)

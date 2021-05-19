@@ -65,19 +65,31 @@ func Download(in <-chan Anime) {
 		}
 		defer out.Close()
 
-		res, err := http.Get(ep.URL)
+		// res, err := http.Get(ep.URL)
+		// if err != nil {
+		// 	log.Println(err)
+		// }
+		req, err := http.NewRequest("GET", ep.URL, nil)
+		if err != nil {
+			log.Println(err)
+		}
+
+		req.Header.Set("Referer", ep.An)
+		fmt.Println(ep.URL)
+		client := &http.Client{}
+		resp, err := client.Do(req)
 		if err != nil {
 			log.Println(err)
 		}
 
 		// Retrive the Size of the file that will be downloaded,
 		// and use it for the progress bar
-		contentLenght := res.Header.Get("Content-Length")
+		contentLenght := resp.Header.Get("Content-Length")
 		size, _ := strconv.ParseInt(contentLenght, 10, 64)
 		sizeInMB := byteConv(int(size))
 
 		// Wrap the interfaces
-		src := &ReadSpy{r: res.Body, ch: make(chan int)}
+		src := &ReadSpy{r: resp.Body, ch: make(chan int)}
 		defer src.Close()
 
 		// This concurrently print the state of download progress

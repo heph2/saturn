@@ -38,8 +38,8 @@ func runFetch(input *string) (index map[int]string) {
 }
 
 // This function get a string as input and return a slice of ints
-// of all the episodes to download.
-func runDown(str string) []int {
+// of all the episodes to download or stream.
+func getEp(str string) []int {
 	var ids []int
 	var s []string
 	var t []string
@@ -83,6 +83,7 @@ func main() {
 	searchPtr := flag.String("search", "", "Search Anime")
 	inputPtr := flag.String("fetch", "", "Fetch the available episodes for the anime selected.")
 	idPtr := flag.String("down", "", "Episodes available")
+	streamPtr := flag.String("stream", "", "Episodes to stream")
 	flag.Parse()
 
 	// if -search is passed
@@ -100,13 +101,25 @@ func main() {
 	// numbers of episodes selected, then
 	// append the string(url) associated to the id
 	if *idPtr != "" {
-		ids := runDown(*idPtr)
+		ids := getEp(*idPtr)
 		fmt.Println(ids)
 		var episodes []string
 		for _, id := range ids {
 			episodes = append(episodes, index[id])
 		}
 		// Call the pool of goroutines with the selected episodes
-		Pool(episodes)
+		Pool(episodes, inputPtr)
+	}
+
+	// if -stream is passed get the episodes
+	// selected and then start streaming them via mpv
+	if *streamPtr != "" {
+		ids := getEp(*streamPtr)
+		fmt.Println(ids)
+		var episodes []string
+		for _, id := range ids {
+			episodes = append(episodes, index[id])
+		}
+		Stream(episodes, inputPtr)
 	}
 }

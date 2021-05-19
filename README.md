@@ -2,6 +2,7 @@
 
 An animesaturn.it scraper and downloader.
 Actually can download up to 10 episodes concurrently.
+Also with the helps of MPV.io you can stream without downloading them.
 
 ## Getting Started
 
@@ -11,7 +12,8 @@ puproses.
 
 ### Prerequisities
 
-You need a Go version with modules support
+You need a Go version with modules support.
+If you want to use the flag "--stream" you must have mpv installed.
 
 ### Installing
 
@@ -50,11 +52,15 @@ _Just run_
         saturn [-fetch] <anime> -down <ID,ID>
 
 
-- For downloadind with a range of episodes (eg: from episode with ID 1 to 6)
+- For downloading with a range of episodes (eg: from episode with ID 1 to 6)
   Use a dash-separated input
 
         saturn [-fetch] <anime> -down <ID-ID>
+        
+- For streaming an episode (or episodes) use -stream flag
 
+        saturn [-fetch] <anime> -stream <ID>
+        
 
 _Example of Usage:_
 

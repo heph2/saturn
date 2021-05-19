@@ -62,7 +62,7 @@ func FetchAnime(input string) (episodes []string) {
 
 // From an user input ( episode choosen ) find the download link
 // and stream it in the channel as an Anime Struct
-func FetchEpisodes(episode string, out chan<- Anime) {
+func FetchEpisodes(episode string, out chan<- Anime, anime string) {
 	// Find Watch Episode URL
 	doc, _ := goquery.NewDocument(episode)
 	epUrl, _ := doc.Find(".card-body a").Attr("href")
@@ -75,5 +75,6 @@ func FetchEpisodes(episode string, out chan<- Anime) {
 	out <- Anime{
 		URL:  string(mp4),
 		Name: string(name),
+		An:   baseURL + "/anime/" + anime,
 	}
 }
