@@ -14,8 +14,8 @@ import (
 	"strings"
 )
 
-// This function search all the available anime
-// that can be fetched. Then print them to stdout
+// runSearch searches all the available anime that can be
+// fetched. Then print them to stdout
 func runSearch(input *string) {
 	available := SearchAnime(*input)
 
@@ -24,12 +24,12 @@ func runSearch(input *string) {
 	}
 }
 
-// This function print on stdout the list of the episodes available
-// Then match the episode to an index
-func runFetch(input *string) (index map[int]string) {
+// runFetch prints on stdout the list of the episodes available, each
+// one with an index.
+func runFetch(input *string) map[int]string {
 	episodes := FetchAnime(*input)
 
-	index = make(map[int]string)
+	index := make(map[int]string)
 	for i, ep := range episodes {
 		fmt.Printf("ID:%d \t %s\n", i, ep)
 		index[i] = ep
@@ -37,12 +37,10 @@ func runFetch(input *string) (index map[int]string) {
 	return index
 }
 
-// This function get a string as input and return a slice of ints
-// of all the episodes to download or stream.
+// getEp gets a string as input and return a slice of ints of all the
+// episodes to download or stream.
 func getEp(str string) []int {
 	var ids []int
-	var s []string
-	var t []string
 
 	// check if we need to
 	// download from an episode to another one; or
@@ -52,7 +50,7 @@ func getEp(str string) []int {
 
 	// Here for different episodes!
 	if checkComma != -1 {
-		s = strings.Split(str, ",")
+		s := strings.Split(str, ",")
 		for _, value := range s {
 			num, _ := strconv.Atoi(value)
 			ids = append(ids, num)
@@ -62,7 +60,7 @@ func getEp(str string) []int {
 
 	// Here for "from - to"
 	if checkSep != -1 {
-		t = strings.Split(str, "-")
+		t := strings.Split(str, "-")
 		from, _ := strconv.Atoi(t[0])
 		to, _ := strconv.Atoi(t[len(t)-1])
 		for i := from; i <= to; i++ {

@@ -13,34 +13,28 @@ import (
 	"os/exec"
 )
 
-// This function create a tmpFile for storing the urls
+// tmpFile creates a tmpFile to store the urls.
 func tmpFile(urls string) string {
-	var playlistFile string
-
 	tmp, err := ioutil.TempFile("", "playlist-")
 	if err != nil {
 		log.Fatal("Cannot create temporary file", err)
 	}
 
 	text := []byte(urls)
-	_, err = tmp.Write(text)
-	if err != nil {
+	if _, err = tmp.Write(text); err != nil {
 		log.Fatal(err)
 	}
 
-	playlistFile = "--playlist=" + tmp.Name()
-	return playlistFile
+	return "--playlist=" + tmp.Name()
 }
 
-// This function make use of goroutines for concurrently
-// get the Urls and stream them via MPV
+// Stream concurrently fetches the urls in epToStream and plays them
+// via MPV.
 func Stream(epToStream []string, anime *string) {
-
 	in := make(chan Anime)
 	done := make(chan struct{})
 
-	go func(in chan Anime) {
-
+	go func(in <-chan Anime) {
 		// Now range over the selected episodes to Stream
 		// and add them to a string, each one separated
 		// by a newline
@@ -79,5 +73,4 @@ func Stream(epToStream []string, anime *string) {
 	<-done
 
 	log.Println("STREAM END")
-
 }

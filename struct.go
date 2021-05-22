@@ -1,11 +1,13 @@
 package main
 
-// This struct contains the Name and the MP4 URL
-// of the Episode. Also contains the Name of the anime (An)
-// that must be provided as referrer in an http.Get request
-// for bypassing 403 Forbidden Errors
 type Anime struct {
+	// The name of the anime.
 	Name string
-	URL  string
-	An   string
+
+	// URL to the MP4 file.
+	URL string
+
+	// The name of the anime that must be provided as referrer to
+	// bypass cloudflare.
+	An string
 }

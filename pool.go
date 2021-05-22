@@ -13,12 +13,12 @@ import (
 	"log"
 )
 
-const workers = 10 // Numbers of goroutines
+// Number of goroutines
+const workers = 10
 
 // Spawn n goroutines that concurrently download the files
 // streamed to the channel "in"
 func Pool(epToDownload []string, anime *string) {
-
 	in := make(chan Anime)
 	done := make(chan struct{})
 

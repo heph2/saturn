@@ -13,25 +13,21 @@ import (
 
 const baseURL = "https://www.animesaturn.it"
 
-// This function get an user input ( anime searched )
-// and return a string of the availables anime that can
-// be fetched and downloaded
+// SearchAnime returns a string of the availables anime that can be
+// fetched and downloaded.
 func SearchAnime(input string) (available []string) {
 	search := baseURL + "/animelist?search=" + input
 	doc, _ := goquery.NewDocument(search)
 
 	doc.Find(".badge-archivio").Each(func(i int, s *goquery.Selection) {
-		var an string
 		link, _ := s.Attr("href")
-		an = string(link)
-
-		available = append(available, an)
+		available = append(available, string(link))
 	})
 	return available
 }
 
-// From an user input return a list of all the Episodes
-// from the anime searched
+// FetchAnime returns a list of all the episodes from the anime
+// searched.
 func FetchAnime(input string) (episodes []string) {
 	search := baseURL + "/anime/" + input
 	req, _ := http.NewRequest("GET", search, nil)
@@ -51,17 +47,14 @@ func FetchAnime(input string) (episodes []string) {
 	}
 
 	doc.Find("a.btn.btn-dark.mb-1").Each(func(i int, s *goquery.Selection) {
-		var episode string
 		link, _ := s.Attr("href")
-		episode = string(link)
-
-		episodes = append(episodes, episode)
+		episodes = append(episodes, string(link))
 	})
 	return episodes
 }
 
-// From an user input ( episode choosen ) find the download link
-// and stream it in the channel as an Anime Struct
+// FetchEpisodes finds the download link and stream it in the channel
+// as an Anime Struct
 func FetchEpisodes(episode string, out chan<- Anime, anime string) {
 	// Find Watch Episode URL
 	doc, _ := goquery.NewDocument(episode)
