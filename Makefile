@@ -1,7 +1,7 @@
 PREFIX =	/usr/local/
 DESTDIR =
 
-.PHONY: all clean
+.PHONY: all saturn clean
 
 all: saturn
 
