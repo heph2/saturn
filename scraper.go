@@ -62,12 +62,22 @@ func FetchEpisodes(episode string, out chan<- Anime, anime string) {
 
 	// Find .mp4 or .m3u8 url
 	d, _ := goquery.NewDocument(epUrl)
-	mp4, _ := d.Find(".hero-unit source").Attr("src")
+	mp4, exist := d.Find(".hero-unit source").Attr("src")
 	name := d.Find(".text-white").Eq(0).First().Text()
 
-	out <- Anime{
-		URL:  string(mp4),
-		Name: string(name),
-		An:   baseURL + "/anime/" + anime,
+	// Check if the mp4 url exist, if not let's search for an m3u8 url
+	if !exist {
+		m3u := d.Find("script").Text()
+		out <- Anime{
+			URL:  m3u,
+			Name: name,
+			An:   baseURL + "/anime/" + anime,
+		}
+	} else {
+		out <- Anime{
+			URL:  mp4,
+			Name: name,
+			An:   baseURL + "/anime/" + anime,
+		}
 	}
 }

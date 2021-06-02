@@ -11,6 +11,7 @@ package main
 
 import (
 	"log"
+	"strings"
 )
 
 // Number of goroutines
@@ -22,15 +23,21 @@ func Pool(epToDownload []string, anime *string) {
 	in := make(chan Anime)
 	done := make(chan struct{})
 
-	// Call the goroutines and let them in "listen" thought
+	// Call the goroutines and let them in "listen"
 	// the channel in, when the goroutines finish send
 	// a message to "done" channel
 	for i := 0; i < workers; i++ {
 		go func() {
-			Download(in)
+			for ep := range in {
+				ok := strings.Contains(ep.URL, "m3u")
+				if ok {
+					DownloadM3U(ep)
+				} else {
+					DownloadMP4(ep)
+				}
+			}
 			done <- struct{}{}
 		}()
-
 	}
 
 	// Fetch the episode selected and stream the struct
