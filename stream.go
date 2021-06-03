@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os/exec"
+	"strings"
 )
 
 // tmpFile creates a tmpFile to store the urls.
@@ -42,6 +43,9 @@ func Stream(epToStream []string, anime *string) {
 		var referrerOption string
 		var urls string
 		for ep := range in {
+			if strings.Contains(ep.URL, ".m3u") {
+				urls += sanitizeURL(ep.URL) + "playlist.m3u8" + "\n"
+			}
 			urls += ep.URL + "\n"
 			referrerOption = "--referrer=" + ep.An
 		}

@@ -63,7 +63,6 @@ func sanitizeURL(epURL string) (playlistURL string) {
 // of the playlist. After that we retrive those URLs, download them, and
 // create a single mp4 file
 func DownloadM3U(ep Anime) {
-
 	// retrive sanitez URL
 	playlistURL := sanitizeURL(ep.URL)
 	episodeURL := playlistURL + "720p.m3u8"
