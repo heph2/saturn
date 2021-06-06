@@ -14,6 +14,10 @@ import (
 	"strings"
 )
 
+var (
+	bar = NewBar()
+)
+
 // runSearch searches all the available anime that can be
 // fetched. Then print them to stdout
 func runSearch(input *string) {

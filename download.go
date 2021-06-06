@@ -17,21 +17,20 @@ import (
 
 type ReadSpy struct {
 	r  io.ReadCloser
-	ch chan int
 }
 
 // Read implements io.Reader for ReadSpy.  It collects sends the
 // number of bytes written to the channel.
 func (r *ReadSpy) Read(p []byte) (n int, err error) {
 	n, err = r.r.Read(p)
-	r.ch <- n
+	bar.Fetched(n)
 	return
 }
 
 // Close implements io.Closer for ReadSpy.  It will also close the
 // channel.
 func (r *ReadSpy) Close() error {
-	close(r.ch)
+	bar.DoneEpisode()
 	return r.r.Close()
 }
 
@@ -81,20 +80,11 @@ func DownloadMP4(ep Anime) {
 	// and use it for the progress bar
 	contentLenght := resp.Header.Get("Content-Length")
 	size, _ := strconv.ParseInt(contentLenght, 10, 64)
-	sizeInMB := byteConv(int(size))
+	bar.AddEpisode(int(size))
 
 	// Wrap the interfaces
-	src := &ReadSpy{r: resp.Body, ch: make(chan int)}
+	src := &ReadSpy{r: resp.Body}
 	defer src.Close()
-
-	// This concurrently print the state of download progress
-	go func() {
-		var byteRead float64
-		for p := range src.ch {
-			fmt.Printf("\rDownloading %.2f MB of %.2f MB", byteRead, sizeInMB)
-			byteRead += byteConv(p)
-		}
-	}()
 
 	// Finally write the content of src ( wrap of res.Body ) into
 	// the file we create

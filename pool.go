@@ -10,7 +10,7 @@
 package main
 
 import (
-	"log"
+	"fmt"
 	"strings"
 )
 
@@ -52,5 +52,5 @@ func Pool(epToDownload []string, anime *string) {
 		<-done
 	}
 
-	log.Println("DONE")
+	fmt.Println("\nDONE!")
 }
