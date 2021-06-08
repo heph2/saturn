@@ -1,0 +1,172 @@
+From 7b47c967b1c75fda03f3ef8aa5bdb57151b1f3aa Mon Sep 17 00:00:00 2001
+From: Omar Polo <op@omarpolo.com>
+Date: Sun, 6 Jun 2021 17:52:19 +0000
+Subject: [PATCH] new bar implementation
+
+---
+ bar.go      | 63 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ download.go | 18 ++++-----------
+ pool.go     |  4 ++--
+ saturn.go   |  4 ++++
+ 4 files changed, 73 insertions(+), 16 deletions(-)
+ create mode 100644 bar.go
+
+diff --git a/bar.go b/bar.go
+new file mode 100644
+index 0000000..8cad6e9
+--- /dev/null
++++ b/bar.go
+@@ -0,0 +1,63 @@
++package main
++
++import (
++	"fmt"
++	"sync"
++)
++
++type Bar struct {
++	total      int
++	downloaded int
++	epsFetched int
++	epsTotal   int
++	m          sync.Mutex
++}
++
++func NewBar() *Bar {
++	return &Bar{}
++}
++
++func (b *Bar) print() {
++	var (
++		fetched = byteConv(b.downloaded)
++		total   = byteConv(b.total)
++	)
++
++	fmt.Printf(
++		"\rDownloading %.2fMB of %.2fMB (%.2f%%) -- done %d of %d  \r",
++		fetched,
++		total,
++		fetched*100.0/total,
++		b.epsFetched,
++		b.epsTotal,
++	)
++}
++
++func (b *Bar) AddEpisode(size int) {
++	b.m.Lock()
++	defer b.m.Unlock()
++
++	b.epsTotal++
++
++	b.total += size
++
++	b.print()
++}
++
++func (b *Bar) DoneEpisode() {
++	b.m.Lock()
++	defer b.m.Unlock()
++
++	b.epsFetched++
++
++	b.print()
++}
++
++func (b *Bar) Fetched(bytes int) {
++	b.m.Lock()
++	defer b.m.Unlock()
++
++	b.downloaded += bytes
++
++	b.print()
++}
+diff --git a/download.go b/download.go
+index 124a8e5..d0e89ce 100644
+--- a/download.go
++++ b/download.go
+@@ -17,21 +17,20 @@ import (
+ 
+ type ReadSpy struct {
+ 	r  io.ReadCloser
+-	ch chan int
+ }
+ 
+ // Read implements io.Reader for ReadSpy.  It collects sends the
+ // number of bytes written to the channel.
+ func (r *ReadSpy) Read(p []byte) (n int, err error) {
+ 	n, err = r.r.Read(p)
+-	r.ch <- n
++	bar.Fetched(n)
+ 	return
+ }
+ 
+ // Close implements io.Closer for ReadSpy.  It will also close the
+ // channel.
+ func (r *ReadSpy) Close() error {
+-	close(r.ch)
++	bar.DoneEpisode()
+ 	return r.r.Close()
+ }
+ 
+@@ -81,21 +80,12 @@ func DownloadMP4(ep Anime) {
+ 	// and use it for the progress bar
+ 	contentLenght := resp.Header.Get("Content-Length")
+ 	size, _ := strconv.ParseInt(contentLenght, 10, 64)
+-	sizeInMB := byteConv(int(size))
++	bar.AddEpisode(int(size))
+ 
+ 	// Wrap the interfaces
+-	src := &ReadSpy{r: resp.Body, ch: make(chan int)}
++	src := &ReadSpy{r: resp.Body}
+ 	defer src.Close()
+ 
+-	// This concurrently print the state of download progress
+-	go func() {
+-		var byteRead float64
+-		for p := range src.ch {
+-			fmt.Printf("\rDownloading %.2f MB of %.2f MB", byteRead, sizeInMB)
+-			byteRead += byteConv(p)
+-		}
+-	}()
+-
+ 	// Finally write the content of src ( wrap of res.Body ) into
+ 	// the file we create
+ 	_, err = io.Copy(out, src)
+diff --git a/pool.go b/pool.go
+index fde88c0..54c1bc2 100644
+--- a/pool.go
++++ b/pool.go
+@@ -10,7 +10,7 @@
+ package main
+ 
+ import (
+-	"log"
++	"fmt"
+ 	"strings"
+ )
+ 
+@@ -52,5 +52,5 @@ func Pool(epToDownload []string, anime *string) {
+ 		<-done
+ 	}
+ 
+-	log.Println("DONE")
++	fmt.Println("\nDONE!")
+ }
+diff --git a/saturn.go b/saturn.go
+index 176b3b5..2430a6a 100644
+--- a/saturn.go
++++ b/saturn.go
+@@ -14,6 +14,10 @@ import (
+ 	"strings"
+ )
+ 
++var (
++	bar = NewBar()
++)
++
+ // runSearch searches all the available anime that can be
+ // fetched. Then print them to stdout
+ func runSearch(input *string) {
+-- 
+2.31.1
+
