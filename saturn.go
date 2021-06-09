@@ -16,6 +16,11 @@ import (
 
 var (
 	bar = NewBar()
+
+	searchPtr = flag.String("search", "", "Search Anime")
+	inputPtr  = flag.String("fetch", "", "Fetch the available episodes for the anime selected.")
+	idPtr     = flag.String("down", "", "Episodes available")
+	streamPtr = flag.String("stream", "", "Episodes to stream")
 )
 
 // runSearch searches all the available anime that can be
@@ -35,7 +40,9 @@ func runFetch(input *string) map[int]string {
 
 	index := make(map[int]string)
 	for i, ep := range episodes {
-		fmt.Printf("ID:%d \t %s\n", i, ep)
+		if *idPtr == "" {
+			fmt.Printf("ID:%d \t %s\n", i, ep)
+		}
 		index[i] = ep
 	}
 	return index
@@ -81,11 +88,6 @@ func getEp(str string) []int {
 }
 
 func main() {
-	// FLAGS //
-	searchPtr := flag.String("search", "", "Search Anime")
-	inputPtr := flag.String("fetch", "", "Fetch the available episodes for the anime selected.")
-	idPtr := flag.String("down", "", "Episodes available")
-	streamPtr := flag.String("stream", "", "Episodes to stream")
 	flag.Parse()
 
 	// if -search is passed
@@ -104,7 +106,7 @@ func main() {
 	// append the string(url) associated to the id
 	if *idPtr != "" {
 		ids := getEp(*idPtr)
-		fmt.Println(ids)
+		// fmt.Println(ids)
 		var episodes []string
 		for _, id := range ids {
 			episodes = append(episodes, index[id])

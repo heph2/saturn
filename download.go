@@ -6,7 +6,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -16,7 +15,7 @@ import (
 )
 
 type ReadSpy struct {
-	r  io.ReadCloser
+	r io.ReadCloser
 }
 
 // Read implements io.Reader for ReadSpy.  It collects sends the
@@ -69,7 +68,7 @@ func DownloadMP4(ep Anime) {
 	}
 
 	req.Header.Set("Referer", ep.An)
-	fmt.Println(ep.URL)
+	// fmt.Println(ep.URL)
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {

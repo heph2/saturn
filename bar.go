@@ -24,7 +24,7 @@ func (b *Bar) print() {
 	)
 
 	fmt.Printf(
-		"\rDownloading %.2fMB of %.2fMB (%.2f%%) -- done %d of %d  \r",
+		"\rDownloading %.2fMB of %.2fMB (%.2f%%) -- done %d of %d  ",
 		fetched,
 		total,
 		fetched*100.0/total,
