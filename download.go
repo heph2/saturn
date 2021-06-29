@@ -14,6 +14,8 @@ import (
 	"strings"
 )
 
+// ReadSpy implement an io.ReadCloser for reading
+// the # of bytes downloaded
 type ReadSpy struct {
 	r io.ReadCloser
 }

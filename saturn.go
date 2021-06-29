@@ -35,22 +35,25 @@ func runSearch(input *string) {
 
 // runFetch prints on stdout the list of the episodes available, each
 // one with an index.
-func runFetch(input *string) map[int]string {
+func runFetch(input *string) (map[int]string, int) {
 	episodes := FetchAnime(*input)
 
 	index := make(map[int]string)
-	for i, ep := range episodes {
+
+	i := 1
+	for _, ep := range episodes {
 		if *idPtr == "" {
 			fmt.Printf("ID:%d \t %s\n", i, ep)
 		}
 		index[i] = ep
+		i++
 	}
-	return index
+	return index, len(episodes) -1
 }
 
 // getEp gets a string as input and return a slice of ints of all the
 // episodes to download or stream.
-func getEp(str string) []int {
+func getEp(str string, eCount int) []int {
 	var ids []int
 
 	// check if we need to
@@ -73,7 +76,13 @@ func getEp(str string) []int {
 	if checkSep != -1 {
 		t := strings.Split(str, "-")
 		from, _ := strconv.Atoi(t[0])
-		to, _ := strconv.Atoi(t[len(t)-1])
+		//		to, _ := strconv.Atoi(t[len(t)-1])
+		var to int
+		if t[1] == "" {
+			to = eCount
+		} else {
+			to, _ = strconv.Atoi(t[1])
+		}
 		for i := from; i <= to; i++ {
 			ids = append(ids, i)
 		}
@@ -96,16 +105,18 @@ func main() {
 	}
 
 	// if -fetch is passed
+	var maxEp int
 	var index map[int]string
 	if *inputPtr != "" {
-		index = runFetch(inputPtr)
+		//		index = runFetch(inputPtr)
+		index, maxEp = runFetch(inputPtr)
 	}
 
 	// if -down is passed range over the
 	// numbers of episodes selected, then
 	// append the string(url) associated to the id
 	if *idPtr != "" {
-		ids := getEp(*idPtr)
+		ids := getEp(*idPtr, maxEp)
 		// fmt.Println(ids)
 		var episodes []string
 		for _, id := range ids {
@@ -118,7 +129,7 @@ func main() {
 	// if -stream is passed get the episodes
 	// selected and then start streaming them via mpv
 	if *streamPtr != "" {
-		ids := getEp(*streamPtr)
+		ids := getEp(*streamPtr, maxEp)
 		fmt.Println(ids)
 		var episodes []string
 		for _, id := range ids {

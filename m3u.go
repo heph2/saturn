@@ -8,8 +8,11 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
+	"strconv"
 )
+
 
 // downloadFile take an URL as input, start an http request on
 // that URL and return a slice of bytes downloaded.
@@ -23,10 +26,11 @@ func downloadFile(URL string) ([]byte, error) {
 		return nil, errors.New(response.Status)
 	}
 	var data bytes.Buffer
-	_, err = io.Copy(&data, response.Body)
+	written, err := io.Copy(&data, response.Body)
 	if err != nil {
 		return nil, err
 	}
+	bar.Fetched(int(written))
 	return data.Bytes(), nil
 }
 
@@ -38,24 +42,38 @@ func downloadMultipleFiles(urls []string) [][]byte {
 		b, _ := downloadFile(URL)
 		bytesArray = append(bytesArray, b)
 	}
+	bar.DoneEpisode()
 	return bytesArray
 }
 
+// sanitizeURL search inside the <script> and find the .m3u8 url
+// that end with playlist.m3u8, after that trim the url.
+// Return an url of this type: https://.../
 func sanitizeURL(epURL string) (playlistURL string) {
-	lines := strings.Split(epURL, "\n")
-
-	var url string
-	for _, line := range lines {
-		if strings.Contains(line, ".m3u8") {
-			r := strings.ReplaceAll(line, "file:", "")
-			trim := strings.TrimSpace(r)
-
-			// Clean
-			url = trim[1 : len(trim)-2]
-		}
-	}
-	playlistURL = url[:len(url)-13]
+	re := regexp.MustCompile(`https:\/\/.*.m3u8`)
+	playlistURL = re.FindString(epURL)
+	playlistURL = strings.TrimSuffix(playlistURL, "playlist.m3u8")
 	return playlistURL
+}
+
+// URL of kind playlist.m3u8 and return kind 720p.m3u8
+func getResolution(playlistURL string) (episodeURL string, size int64) {
+	res, _ := http.Get(playlistURL)
+	contentLenght := res.Header.Get("Content-Length")
+	size , _ = strconv.ParseInt(contentLenght, 10, 64)
+	defer res.Body.Close()
+	bodyBytes, err := io.ReadAll(res.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	re2 := regexp.MustCompile(`[0-9]*p.m3u8`)
+	resolutions := re2.FindAllString(string(bodyBytes), -1)
+
+	maxRes := resolutions[len(resolutions)-1]
+
+	episodeURL = strings.Replace(playlistURL,"playlist.m3u8",maxRes, -1)
+
+	return
 }
 
 // DownloadM3U retrive the .m3u8 URL, than start an http request with
@@ -64,8 +82,9 @@ func sanitizeURL(epURL string) (playlistURL string) {
 // create a single mp4 file
 func DownloadM3U(ep Anime) {
 	// retrive sanitez URL
-	playlistURL := sanitizeURL(ep.URL)
-	episodeURL := playlistURL + "720p.m3u8"
+	baseURL := sanitizeURL(ep.URL)
+	playlistURL := baseURL + "playlist.m3u8"
+	episodeURL, size := getResolution(playlistURL) // this ends with 720p.m3u8
 
 	// At this point need to read the body of an http request
 	req, err := http.NewRequest("GET", episodeURL, nil)
@@ -78,13 +97,18 @@ func DownloadM3U(ep Anime) {
 	if err != nil {
 		log.Println("Error with http client", err)
 	}
+	bar.AddEpisode(int(size))
 	defer resp.Body.Close()
 
 	// Read the playlist body, split them and retrive
 	// the URLs of the videos
-	bytes, _ := ioutil.ReadAll(resp.Body)
+	bytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Println("Error with ts url", err)
+	}
 	str := strings.Split(string(bytes), "\n")
 
+	// Retrive all the .ts link
 	var ts []string
 	for _, s := range str {
 		if strings.Contains(s, ".ts") {
@@ -92,15 +116,21 @@ func DownloadM3U(ep Anime) {
 		}
 	}
 
-	var downUrl []string
+	// Build the url appending the ts link to baseURL
+	var downURL []string
 	for _, t := range ts {
-		downUrl = append(downUrl, playlistURL+t)
+		downURL = append(downURL, baseURL+t)
 	}
 
-	dataArray := downloadMultipleFiles(downUrl)
+	// Start Downloading each video
+	dataArray := downloadMultipleFiles(downURL)
+
 
 	ep.Name = strings.TrimSpace(ep.Name) + ".mp4"
-	file, _ := os.Create(ep.Name)
+	file, err := os.Create(ep.Name)
+	if err != nil {
+		log.Println("Error creating file: ", err)
+	}
 	defer file.Close()
 
 	// This loop range over all the bytes and
