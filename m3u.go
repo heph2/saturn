@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"regexp"
 	"strings"
@@ -66,10 +67,36 @@ func getResolution(playlistURL string) (episodeURL string, size int64) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	re2 := regexp.MustCompile(`[0-9]*p.m3u8`)
-	resolutions := re2.FindAllString(string(bodyBytes), -1)
+	// re2 := regexp.MustCompile(`[0-9]*p.m3u8`)
+	// resolutions := re2.FindAllString(string(bodyBytes), -1)
 
+	bodyStrings := strings.Split(string(bodyBytes), "\n")
+
+	// range over bodyStrings and search for lines with .m3u8 links
+	var resolutions []string
+	for _, line := range bodyStrings {
+		if strings.Contains(line, ".m3u8") {
+			resolutions = append(resolutions, line)
+		}
+	}
+
+	log.Println(resolutions)
+
+	// find max resolutions
 	maxRes := resolutions[len(resolutions)-1]
+	log.Println(maxRes)
+
+	// create base URL
+	base, err := url.Parse(playlistURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	maxRes = strings.TrimSuffix(maxRes, "\r")
+	u, err := url.Parse(maxRes)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println(base.ResolveReference(u))
 
 	episodeURL = strings.Replace(playlistURL,"playlist.m3u8",maxRes, -1)
 
@@ -119,7 +146,15 @@ func DownloadM3U(ep Anime) {
 	// Build the url appending the ts link to baseURL
 	var downURL []string
 	for _, t := range ts {
-		downURL = append(downURL, baseURL+t)
+		//downURL = append(downURL, baseURL+t)
+		u, err := url.Parse(t)
+		if err != nil {
+			log.Fatal(err)
+		}
+		base, err := url.Parse(episodeURL)
+		abs := base.ResolveReference(u)
+		log.Println(abs)
+		downURL = append(downURL, abs.String())
 	}
 
 	// Start Downloading each video
