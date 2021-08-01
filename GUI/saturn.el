@@ -21,8 +21,8 @@
 ;;; Commentary:
 
 ;; saturn.el is an Emacs interface for saturn(1), the animesaturn.it
-;; scraper.  It allows to search animes and download multiple
-;; episodes, using a dired-like interface.
+;; scraper.  It allows to search animes and download or stream
+;; multiple episodes using a dired-like interface.
 
 ;;; Code:
 (require 'cl-lib)
@@ -102,7 +102,8 @@
     (define-key m (kbd "p") #'previous-line)
     (define-key m (kbd "m") #'saturn-mark)
     (define-key m (kbd "u") #'saturn-unmark)
-    (define-key m (kbd "x") #'saturn-download)
+    (define-key m (kbd "d") #'saturn-download)
+    (define-key m (kbd "s") #'saturn-stream)
     m))
 
 (defun saturn--revert (&rest _)
@@ -116,7 +117,7 @@
 (defun saturn--set-at-point (val)
   "Mark/unmork episode at point, depending on VAL."
   (if-let (e (ewoc-locate saturn--ewoc))
-    (let* ((data     (ewoc-data e)))
+    (let* ((data (ewoc-data e)))
       (setf (car data) val)
       (ewoc-set-data e data)
       (ewoc-invalidate saturn--ewoc e)
@@ -134,8 +135,33 @@
   (saturn--set-at-point nil))
 
 (defun saturn--marked ()
-  "Return a list of marked episodes ids."
-  (mapcar #'cadr (ewoc-collect saturn--ewoc (lambda (data) (car data)))))
+  "Return a list of marked episodes ids or the one at point."
+  (or (mapcar #'cadr (ewoc-collect saturn--ewoc (lambda (data) (car data))))
+      (list (cadr (ewoc-data (ewoc-locate saturn--ewoc))))))
+
+
+
+(defvar saturn--stream-proc nil
+  "The streaming process.")
+
+(defun saturn-stream (anime episodes)
+  "Stream EPISODES of the given ANIME."
+  (interactive (list saturn--current-anime
+                     (saturn--marked))
+               saturn-mode)
+  (when (process-live-p saturn--stream-proc)
+    (error "[saturn] the streaming is already running"))
+  (let* ((process-connection-type t)
+         (proc (start-process "saturn stream"
+                              "*saturn-stream*"
+                              saturn-cmd
+                              "-fetch" anime
+                              "-stream" (mapconcat #'identity
+                                                   episodes ","))))
+    (message "Streaming episode%s %s"
+             (if (cdr episodes) "s" "") ; poor man' pluralizing
+             (mapconcat #'identity episodes ", "))
+    (setq saturn--stream-proc proc)))
 
 
 
