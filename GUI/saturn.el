@@ -36,10 +36,6 @@
   "Path to the saturn executable."
   :type 'string)
 
-(defcustom saturn-download-path "~/"
-  "Path to the directory where the episodes will be saved."
-  :type 'directory)
-
 (defun saturn--completing-read-anime ()
   "Search and select an anime."
   (with-temp-buffer
