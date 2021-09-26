@@ -1,6 +1,6 @@
 # Saturn
 
-![Test](./assets/gopher.svg)
+![Test](https://github.com/heph2/saturn/blob/master/assets/gopher.png)
 
 An animesaturn.it scraper and downloader.
 Actually can download up to 10 episodes concurrently.
