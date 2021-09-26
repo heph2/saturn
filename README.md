@@ -1,6 +1,6 @@
 # Saturn
 
-<img width="200" alt="Golang One_Piece" src="https://github.com/heph2/saturn/blob/master/assets/gopher.png">
+![Gopher OP](assets/small-gopher.png)
 
 An animesaturn.it scraper and downloader.
 Actually can download up to 10 episodes concurrently.
