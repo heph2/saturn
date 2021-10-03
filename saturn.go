@@ -17,6 +17,7 @@ import (
 var (
 	bar = NewBar()
 
+	plotPtr   = flag.String("plot", "", "Plot Anime")
 	searchPtr = flag.String("search", "", "Search Anime")
 	inputPtr  = flag.String("fetch", "", "Fetch the available episodes for the anime selected.")
 	idPtr     = flag.String("down", "", "Episodes available")
@@ -48,7 +49,7 @@ func runFetch(input *string) (map[int]string, int) {
 		index[i] = ep
 		i++
 	}
-	return index, len(episodes) -1
+	return index, len(episodes) - 1
 }
 
 // getEp gets a string as input and return a slice of ints of all the
@@ -136,5 +137,9 @@ func main() {
 			episodes = append(episodes, index[id])
 		}
 		Stream(episodes, inputPtr)
+	}
+
+	if *plotPtr != "" {
+		PlotAnime(*plotPtr)
 	}
 }

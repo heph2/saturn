@@ -5,6 +5,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -51,6 +52,37 @@ func FetchAnime(input string) (episodes []string) {
 		episodes = append(episodes, string(link))
 	})
 	return episodes
+}
+
+func PlotAnime(input string) {
+	var thePlot string
+	splot := baseURL + "/anime/" + input
+	req, err := http.Get(splot)
+
+	if err != nil {
+		log.Println(err)
+	}
+	defer req.Body.Close()
+
+	if req.StatusCode != 200 {
+		log.Fatalf(
+			"got an error status %d %s",
+			req.StatusCode,
+			req.Status,
+		)
+	}
+	doc, err := goquery.NewDocumentFromReader(req.Body)
+	if err != nil {
+		log.Println(err)
+	}
+
+	doc.Find("#trama").Each(func(i int, s *goquery.Selection) {
+		plot := s.Find("#full-trama").Text()
+		thePlot = plot
+	})
+
+	fmt.Println(thePlot)
+
 }
 
 // FetchEpisodes finds the download link and stream it in the channel
