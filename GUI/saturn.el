@@ -77,6 +77,12 @@
     (mapcar #'saturn--parse-episode
             (split-string (buffer-string) "\n" t " \t"))))
 
+(defun saturn-plot (anime)
+  "Return the plot for the given ANIME."
+  (with-temp-buffer
+    (when (zerop (call-process saturn-cmd nil t nil "-plot" anime))
+      (buffer-string))))
+
 ;;;###autoload
 (defun saturn (anime)
   "List episodes of the given ANIME."
@@ -85,9 +91,11 @@
       (kill-buffer buf))
   (switch-to-buffer (get-buffer-create "*saturn*"))
   (saturn-mode)
-  (setq-local saturn--current-anime anime
-              saturn--ewoc (ewoc-create #'saturn--pp
-                                        (concat "Results for " anime ":\n")))
+  (let ((plot (saturn-plot anime)))
+    (setq-local saturn--current-anime anime
+                saturn--ewoc (ewoc-create #'saturn--pp
+                                          (or plot
+                                              (concat "Results for " anime ":\n")))))
   (dolist (ep (saturn--search-episodes anime))
     (when ep
       (ewoc-enter-last saturn--ewoc (cons nil ep)))))
@@ -105,6 +113,9 @@
 (defun saturn--revert (&rest _)
   "Revert the *saturn* buffer."
   (call-interactively #'saturn))
+
+(defvar saturn-mode-hook (list #'visual-line-mode)
+  "Hook for `saturn-mode'.")
 
 (define-derived-mode saturn-mode special-mode "Saturn"
   "Major mode for Saturn episode list."
