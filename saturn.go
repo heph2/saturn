@@ -17,10 +17,10 @@ import (
 var (
 	bar = NewBar()
 
-	plotPtr   = flag.String("plot", "", "Plot Anime")
-	searchPtr = flag.String("search", "", "Search Anime")
-	inputPtr  = flag.String("fetch", "", "Fetch the available episodes for the anime selected.")
-	idPtr     = flag.String("down", "", "Episodes available")
+	plotPtr   = flag.String("plot", "", "Read the plot of the given anime")
+	searchPtr = flag.String("search", "", "Search for an anime")
+	inputPtr  = flag.String("fetch", "", "Fetch the available episodes for the selected anime.")
+	idPtr     = flag.String("down", "", "Episodes to fetch")
 	streamPtr = flag.String("stream", "", "Episodes to stream")
 )
 
