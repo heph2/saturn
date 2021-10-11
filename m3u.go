@@ -10,10 +10,9 @@ import (
 	"net/url"
 	"os"
 	"regexp"
-	"strings"
 	"strconv"
+	"strings"
 )
-
 
 // downloadFile take an URL as input, start an http request on
 // that URL and return a slice of bytes downloaded.
@@ -61,7 +60,7 @@ func sanitizeURL(epURL string) (playlistURL string) {
 func getResolution(playlistURL string) (episodeURL string, size int64) {
 	res, _ := http.Get(playlistURL)
 	contentLenght := res.Header.Get("Content-Length")
-	size , _ = strconv.ParseInt(contentLenght, 10, 64)
+	size, _ = strconv.ParseInt(contentLenght, 10, 64)
 	defer res.Body.Close()
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
@@ -82,8 +81,14 @@ func getResolution(playlistURL string) (episodeURL string, size int64) {
 
 	log.Println(resolutions)
 
-	// find max resolutions
-	maxRes := resolutions[len(resolutions)-1]
+	// Always find for 720p resolution
+	var maxRes string
+	for _, res := range resolutions {
+		if strings.Contains(res, "720p") {
+			maxRes = res
+		}
+	}
+
 	log.Println(maxRes)
 
 	// create base URL
@@ -98,7 +103,7 @@ func getResolution(playlistURL string) (episodeURL string, size int64) {
 	}
 	log.Println(base.ResolveReference(u))
 
-	episodeURL = strings.Replace(playlistURL,"playlist.m3u8",maxRes, -1)
+	episodeURL = strings.Replace(playlistURL, "playlist.m3u8", maxRes, -1)
 
 	return
 }
@@ -159,7 +164,6 @@ func DownloadM3U(ep Anime) {
 
 	// Start Downloading each video
 	dataArray := downloadMultipleFiles(downURL)
-
 
 	ep.Name = strings.TrimSpace(ep.Name) + ".mp4"
 	file, err := os.Create(ep.Name)
