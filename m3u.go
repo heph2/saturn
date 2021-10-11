@@ -83,6 +83,7 @@ func getResolution(playlistURL string) (episodeURL string, size int64) {
 
 	// Always find for 720p resolution
 	var maxRes string
+	maxRes = resolutions[len(resolutions)-1]
 	for _, res := range resolutions {
 		if strings.Contains(res, "720p") {
 			maxRes = res
