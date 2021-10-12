@@ -81,7 +81,9 @@
   "Return the plot for the given ANIME."
   (with-temp-buffer
     (when (zerop (call-process saturn-cmd nil t nil "-plot" anime))
-      (buffer-string))))
+      (let ((plot (string-trim (buffer-string))))
+        (unless (string= plot "")
+          plot)))))
 
 ;;;###autoload
 (defun saturn (anime)
