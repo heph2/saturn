@@ -87,10 +87,23 @@ func getResolution(playlistURL string) (episodeURL string, size int64) {
 	for _, res := range resolutions {
 		if strings.Contains(res, "720p") {
 			maxRes = res
+			break;
+		}
+		if strings.Contains(res, "480p") {
+			maxRes = res
+			break;
+		}
+		if strings.Contains(res, "240p") {
+			maxRes = res
+			break;
+		}
+		if strings.Contains(res, "144p") {
+			maxRes = res
+			break;
 		}
 	}
 
-	log.Println(maxRes)
+	log.Println("This is ",maxRes)
 
 	// create base URL
 	base, err := url.Parse(playlistURL)
