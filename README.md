@@ -114,11 +114,11 @@ Now let's say that i want to download from episode 2 to 5
 This will *concurrently* download the episodes ranging from 1 to 5.
 
 ## Roadmap
-[x] refactor into a more idiomatic dir structure
-[] add verbose flags and better log structure
-[] expose an usable interface for create scrapers for other websites
-[] add tests
-[] add CI/CD
+- [x] refactor into a more idiomatic dir structure
+- [] add verbose flags and better log structure
+- [] expose an usable interface for create scrapers for other websites
+- [] add tests
+- [] add CI/CD
 
 ## Built With
 
